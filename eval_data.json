@@ -1,0 +1,42 @@
+[
+  {
+    "prompt": "What is the penalty for a bowler delivering a no-ball in Twenty20 cricket?",
+    "response": "The batting team is awarded one run and the next delivery is a free hit."
+  },
+  {
+    "prompt": "How many players must a cricket team have to start a match?",
+    "response": "A team must have at least 11 players to start a match."
+  },
+  {
+    "prompt": "What happens if a batsman is timed out?",
+    "response": "The batsman is considered out and their innings is over."
+  },
+  {
+    "prompt": "How long is the interval between innings in a Twenty20 match?",
+    "response": "The interval between innings is a maximum of 20 minutes."
+  },
+  {
+    "prompt": "What is a Super Over in cricket?",
+    "response": "A Super Over is a one-over per side tiebreaker used to decide the winner in playoff matches that end in a tie."
+  },
+  {
+    "prompt": "How many overs can a bowler bowl in a Twenty20 match?",
+    "response": "A bowler can bowl a maximum of 4 overs in a Twenty20 match."
+  },
+  {
+    "prompt": "Are runners allowed in Twenty20 cricket?",
+    "response": "No, runners are not allowed in Twenty20 cricket."
+  },
+  {
+    "prompt": "What is the penalty for unfair movement by the fielding team while the bowler is running in?",
+    "response": "A five-run penalty is awarded and the delivery is deemed a dead ball."
+  },
+  {
+    "prompt": "What is the Duckworth-Lewis method?",
+    "response": "The Duckworth-Lewis method is a mathematical formula used to calculate the target score for the team batting second in interrupted limited-overs matches."
+  },
+  {
+    "prompt": "How many balls are bowled in an over?",
+    "response": "There are six balls in an over."
+  }
+]

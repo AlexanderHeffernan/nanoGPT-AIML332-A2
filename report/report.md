@@ -178,3 +178,102 @@ This means the longer sequences almost always have lower probabilities than shor
 - For a longer fixed response (e.g., `"New Zealand which is a country"`), the probability dropped significantly (4.9344e-17).
 
 This is a general property of autoregressive models: the probability of a sequence is the product of the conditional probabilities of each token given the preious tokens.
+
+## 2.1 Evaluation Harness
+
+### (a) Code Description and Example Evaluation Pairs
+
+For this task, I created a new Python program called `eval.py` to evaluate the GPT model on a set of prompt-response pairs.
+The evaluation pairs are stored in a JSON file called `eval_data.json`, which contains a list of objects, each with a `prompt` and a `response`.
+
+**Example contents of `eval_data.json`:**
+```json
+[
+  {"prompt": "I live in", "response": "New Zealand"},
+  {"prompt": "The capital of France is", "response": "Paris"}
+]
+```
+
+In `eval.py`, I adapted the code from `sample.py` to load the model and tokenizer, then defined an `eval` function.
+This function reads the evaluation data, encodes each prompt and response, and calls the model's `generate` function with the prompt and the fixed response tokens.
+For each pair, it prints the probability that the model assigns to the response, given the prompt, and sums these probabilities.
+**Code excerpt from `eval.py`:**
+```python
+def eval(eval_file):
+    with open(eval_file, 'r') as f:
+        data = json.load(f)
+    total_prob = 0.0
+    for pair in data:
+        prompt = pair["prompt"]
+        response = pair["response"]
+        prompt_ids = encode(prompt)
+        response_ids = encode(response)
+        x = torch.tensor(prompt_ids, dtype=torch.long, device=device)[None, ...]
+        _, sequence_prob = model.generate(x, max_new_tokens=len(response_ids), temperature=temperature, top_k=top_k, fixed_response=response_ids)
+        print(f'Prompt: {prompt}\nResponse: {response}\nProbability: {sequence_prob:.4e}\n---')
+        total_prob += sequence_prob
+    print(f"Sum of probabilities: {total_prob:.4e}")
+```
+**Example output:**
+```
+Prompt: I live in
+Response: New Zealand
+Probability: 9.98413e-13
+---
+Prompt: The capital of France is
+Response: Paris
+Probability: 1.0000e-10
+---
+Sum of probabilities: 1.0100e-10
+```
+
+---
+
+### (b) How the `eval` Function Runs
+
+When `eval.py` is executed, the following steps occur:
+
+1. The model and tokenizer are loaded.
+2. The evaluation data is read from `eval_data.json`.
+3. For each prompt-response pair:
+   - The prompt and response are encoded into token IDs.
+   - The model's `generate` function is called with the prompt and the fixed response.
+   - The probability assigned by the model to the reponse is calculated and printed.
+4. The probabilities for all pairs are summed and printed at the end.
+
+This harness allows for a straightforward comparison of how likely the model is to produce specific responses to given prompts, which is useful for evaluating the effects of fine-tuning or other changes to the model.
+
+---
+
+## 2.2 Dataset Selection and Evaluation Set
+
+### (a) Corpus Description
+
+FOr fine-tuning my GPT model, I selected the [cricket-rules dataset](https://huggingface.co/datasets/srivats666/cricket-rules) from Hugging Face.
+This corpus contains the rules and regulations of cricket in English. The language is highly specialised, featuring technical terms and concepts unique to cricket, such as "LWB" (Leg Before Wicket), "Super Over", "powerplay", and "Duckworth-Lewis method".
+The dataset is structured as question-answer pairs, which makes it suitable for training and evaluating models on factual recall and rule-based reasoning in the domain of cricket.
+
+### (b) Evaluation Set Creation
+
+To create my evaluation set, I hand-crafted a set of prompt-response pairs based on key concepts and rules from the cricket-rules dataset.
+I chose this approach to ensure coverage of important rules and terminology, and to model the human alignment process described in the assignment.
+Hand-crafting allows me to select questions that are representative of the specialised language and knowledge found in the corpus, and to write clear, accurate responses.
+
+**Example evaluation pairs (from `eval_data.json`):**
+```json
+[
+    {
+        "prompt": "What is the penalty for a bowler delivering a no-ball in Twenty20 cricket?",
+        "response": "The batting team is awarded one run and the next delivery is a free hit."
+    },
+    {
+        "prompt": "How many players must a cricket team have to start a match?",
+        "response": "A team must have at least 11 players to start a match."
+    },
+]
+```
+
+I saved these pairs in `eval_data.json` for use with my evaluation harness.
+
+**Justification:**
+Hand-crafting the evaluation set ensures that the prompts are clear, relevant, and cover a broad range of cricket rules. This method also allows for targeted assessment of the model's ability to recall and apply domain-specific knowledge after fine-tuning.
