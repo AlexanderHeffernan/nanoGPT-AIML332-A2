@@ -10,6 +10,10 @@ In `sample.py`, I added a command-line flag called `--show_probs`. When this fla
 
 ```python
 # Added to model.py (inside GPT.generate)
+
+# Before the generation loop
+all_probs = []
+# Inside the generation loop
 top_probs, top_idx = torch.topk(probs, 10)
 if show_probs:
     all_probs.append({
@@ -65,3 +69,52 @@ The `temperature` parameter changes how random the model is when picking the nex
 
 **Summary:**
 Changing the temperature affects how confident or random the model is. Lower temperature makes the model stick to the most likely tokens, while higher temperature makes it take more risks.
+
+## 1.2 Sequence Probability
+
+### (a) Code Description and Sample Output
+
+To calculate the probability of a generated sequence, I modified the `generate` function in `model.py`.
+Now, as each token is generated, I record the probability assigned to that token by the model.
+I use log probabilities for each token to avoid numerical underflow, then sum them up and exponentiate the result to get the final sequence probability.
+
+** Code excerpts from `model.py`:**
+```python
+# Inside GPT.generate
+sequence_log_prob = 0.0
+for _ in range(max_new_tokens):
+    # ...existing code...
+    token_prob = probs[0, idx_next[0, 0]].item()
+    sequence_log_prob += math.log(token_prob + 1e-10)
+    # ...existing code...
+sequence_prob = math.exp(sequence_log_prob)
+return idx, sequence_prob
+```
+
+In `sample.py`, I unpack the returned values and print both the generated text and its probability:
+```python
+y, sequence_prob = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
+print(decode(y[0].tolist()))
+print(f"Sequence probability: {sequence_prob:.4e}")
+```
+
+**Sample Output:**
+Prompt: `I love in`
+Settings: `max_new_tokens=5`, `temperature=0.0001`
+
+```
+I live in a small town in the
+Sequence probability: 1.0000e+00
+```
+
+### (b) Assumptions and Use of Log Probabilities
+
+**Assumptions:**
+- The probability of the sequence is calculated by multiplying the probabilities of each generated token, assuming each token is conditionally independent given the previous tokens (as per the autoregressive model).
+
+**Why use log probabilities:**
+- Multiplying many small probabilities can quickly lead to numerical underflow (values too small for the computer to represent).
+- By summing log probabilities instead, we keep the computation stable and avoid underflow.
+- At the end, we exponentiate the sum to get the actual probability.
+
+This approach is standard for working with probabilities in long sequences in machine learning.

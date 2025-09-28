@@ -87,8 +87,9 @@ with torch.no_grad():
     with ctx:
         for k in range(num_samples):
             if show_probs:
-                y, all_probs = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k, show_probs=show_probs)
+                y, sequence_prob, all_probs = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k, show_probs=show_probs)
                 print(decode(y[0].tolist()))
+                print(f"Sequence probability: {sequence_prob:.4e}")
                 print('---------------')
                 # Visualize each step
                 for step, prob_info in enumerate(all_probs):
@@ -101,6 +102,7 @@ with torch.no_grad():
                     plt.title(f"Step {step+1}: Token Probabilities")
                     plt.show()
             else:
-                y = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
+                y, sequence_prob = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
                 print(decode(y[0].tolist()))
+                print(f"Sequence probability: {sequence_prob:.4e}")
                 print('---------------')
