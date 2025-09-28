@@ -21,6 +21,7 @@ seed = 1337
 device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1', etc.
 dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16' # 'float32' or 'bfloat16' or 'float16'
 show_probs = False
+fixed_response_text = ""
 compile = False # use PyTorch 2.0 to compile the model to be faster
 exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
@@ -101,6 +102,12 @@ with torch.no_grad():
                     plt.xticks(range(10), [decode([i]) for i in top_idx])
                     plt.title(f"Step {step+1}: Token Probabilities")
                     plt.show()
+            elif fixed_response_text != "":
+                fixed_response_tokens = encode(fixed_response_text)
+                y, sequence_prob = model.generate(x, max_new_tokens=len(fixed_response_tokens), temperature=temperature, top_k=top_k, fixed_response=fixed_response_tokens)
+                print(decode(y[0].tolist()))
+                print(f"Probability of fixed sequence: {sequence_prob:.4e}")
+                print('---------------')
             else:
                 y, sequence_prob = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
                 print(decode(y[0].tolist()))

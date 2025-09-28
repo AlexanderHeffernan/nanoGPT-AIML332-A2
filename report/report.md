@@ -118,3 +118,63 @@ Sequence probability: 1.0000e+00
 - At the end, we exponentiate the sum to get the actual probability.
 
 This approach is standard for working with probabilities in long sequences in machine learning.
+
+## 1.3 Probability of a Fixed Sequence
+
+### (a) Code Description and Example Output
+
+To compute the probability of a fixed sequence, I further modified the `generate` function in `model.py` to accept an optional argument called `fixed_response`.
+If `fixed_response` is provided (as a list of token IDs), the function uses these tokens instead of sampling, and calculates the probability the model assigns to that exact sequence.
+
+In `sample.py`, I added a variable `fixed_response_text`. If this is set (not empty), the code encodes it into tokens and passes it to `generate` as `fixed_response`. The output is the probability of the model generating that exact sequence after the prompt.
+
+**Code excerpt from `model.py`:**
+```python
+# Inside GPT.generate
+if fixed_response != "":
+    for token in fixed_response:
+        idx_cond = generated if generated.size(1) <= self.config.block_size else generated[:, -self.config.block_size:]
+        logits, _ = self(idx_cond)
+        logits = logits[:, -1, :] / temperature
+        probs = F.softmax(logits, dim=-1)
+        token_prob = probs[0, token].item()
+        sequence_log_prob += math.log(token_prob + 1e-10)
+        token_tensor = torch.tensor([[token]], device=generated.device)
+        generated = torch.cat((generated, token_tensor), dim=1)
+    sequence_prob = math.exp(sequence_log_prob)
+    return generated, sequence_prob
+```
+
+**Code excerpt from `sample.py`:**
+```python
+if fixed_response_text != "":
+    fixed_response_tokens = encode(fixed_response_text)
+    y, sequence_prob = model.generate(x, max_new_tokens=len(fixed_response_tokens), temperature=temperature, top_k=top_k, fixed_response=fixed_response_tokens)
+    print(decode(y[0].tolist()))
+    print(f"Probability of fixed sequence: {sequence_prob:.4e}")
+```
+
+**Example Output:**
+
+Prompt: `I live in`
+Fixed response: `New Zealand`
+Settings: `max_new_tokens=2`, `temperature=1.0`
+
+```
+I live in New Zealand
+Probability of fixed sequence: 1.9278e-12
+```
+
+---
+
+### (b) Effect of Changing Sequence Length
+
+The probability of a sequence is calculated by multiplying the probabilities of each token in the sequence.
+As the length of the sequence increases, the overall probability decreases, because you are multiplying more small numbers together.
+This means the longer sequences almost always have lower probabilities than shorter ones, even if each token is likely.
+
+**Example:**
+- For a short fixed response (e.g., `"NZ"`), the probability was higher (1.0000e-10).
+- For a longer fixed response (e.g., `"New Zealand which is a country"`), the probability dropped significantly (4.9344e-17).
+
+This is a general property of autoregressive models: the probability of a sequence is the product of the conditional probabilities of each token given the preious tokens.
