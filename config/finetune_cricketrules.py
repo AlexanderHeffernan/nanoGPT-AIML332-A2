@@ -1,0 +1,12 @@
+out_dir = 'out-cricketrules'
+eval_interval = 5
+eval_iters = 10
+wandb_log = False
+dataset = 'cricketrules'
+init_from = 'gpt2'
+batch_size = 1
+block_size = 128
+learning_rate = 3e-5
+max_iters = 50
+decay_lr = False
+device = 'mps'

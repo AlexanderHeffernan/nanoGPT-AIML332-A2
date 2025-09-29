@@ -22,6 +22,8 @@ device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1', etc.
 dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16' # 'float32' or 'bfloat16' or 'float16'
 show_probs = False
 fixed_response_text = ""
+beam_search = False
+beam_width = 3
 compile = False # use PyTorch 2.0 to compile the model to be faster
 exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
@@ -65,10 +67,14 @@ if load_meta:
     print(f"Loading meta from {meta_path}...")
     with open(meta_path, 'rb') as f:
         meta = pickle.load(f)
-    # TODO want to make this more general to arbitrary encoder/decoder schemes
-    stoi, itos = meta['stoi'], meta['itos']
-    encode = lambda s: [stoi[c] for c in s]
-    decode = lambda l: ''.join([itos[i] for i in l])
+    try:
+        stoi, itos = meta['stoi'], meta['itos']
+        encode = lambda s: [stoi[c] for c in s]
+        decode = lambda l: ''.join([itos[i] for i in l])
+    except KeyError:
+        # Fallback for TikToken meta.pkl
+        encode = meta['encode']
+        decode = meta['decode']
 else:
     # ok let's assume gpt-2 encodings by default
     print("No meta.pkl found, assuming GPT-2 encodings...")
@@ -87,7 +93,12 @@ x = (torch.tensor(start_ids, dtype=torch.long, device=device)[None, ...])
 with torch.no_grad():
     with ctx:
         for k in range(num_samples):
-            if show_probs:
+            if beam_search:
+                y, sequence_prob = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k, beam_search=True, beam_width=beam_width)
+                print(decode(y[0].tolist()))
+                print(f"[Beam Search] Sequence probability: {sequence_prob:.4e}")
+                print('---------------')
+            elif show_probs:
                 y, sequence_prob, all_probs = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k, show_probs=show_probs)
                 print(decode(y[0].tolist()))
                 print(f"Sequence probability: {sequence_prob:.4e}")

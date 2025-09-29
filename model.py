@@ -303,7 +303,7 @@ class GPT(nn.Module):
         return mfu
 
     @torch.no_grad()
-    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None, show_probs=False, fixed_response=""):
+    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None, show_probs=False, fixed_response="", beam_search=False, beam_width=3):
         """
         Take a conditioning sequence of indices idx (LongTensor of shape (b,t)) and complete
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
@@ -312,7 +312,32 @@ class GPT(nn.Module):
         all_probs = []
         sequence_log_prob = 0.0
         generated = idx
-        if fixed_response != "":
+        if beam_search:
+            # Beam search implementation
+            beams = [(idx, 0.0)]  # Each beam: (sequence tensor, cumulative log prob)
+            for _ in range(max_new_tokens):
+                candidates = []
+                for seq, seq_log_prob in beams:
+                    idx_cond = seq if seq.size(1) <= self.config.block_size else seq[:, -self.config.block_size:]
+                    logits, _ = self(idx_cond)
+                    logits = logits[:, -1, :] / temperature
+                    if top_k is not None:
+                        v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                        logits[logits < v[:, [-1]]] = -float('Inf')
+                    probs = F.softmax(logits, dim=-1)
+                    top_probs, top_idx = torch.topk(probs, beam_width)
+                    for prob, token in zip(top_probs[0], top_idx[0]):
+                        new_seq = torch.cat((seq, token.view(1, 1)), dim=1)
+                        new_log_prob = seq_log_prob + math.log(prob.item() + 1e-10)
+                        candidates.append((new_seq, new_log_prob))
+                # Keep top beam_width candidates
+                candidates.sort(key=lambda x: x[1], reverse=True)
+                beams = candidates[:beam_width]
+            # Return the best sequence and its probability
+            best_seq, best_log_prob = beams[0]
+            sequence_prob = math.exp(best_log_prob)
+            return best_seq, sequence_prob
+        elif fixed_response != "":
             # Use provided tokens instead of sampling
             for token in fixed_response:
                 idx_cond = generated if generated.size(1) <= self.config.block_size else generated[:, -self.config.block_size:]

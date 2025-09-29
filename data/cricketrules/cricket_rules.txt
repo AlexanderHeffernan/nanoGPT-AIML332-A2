@@ -1,0 +1,101 @@
+What is the maximum number of overs a team can bat in a Twenty20 match? 20 overs.
+How many players are on a cricket team? 11 players.
+What is the minimum number of players required for a team to start a match? 11 players.
+What happens if a team is reduced to less than 6 players? The team must forfeit the game.
+How long is the interval between innings in a Twenty20 match? Maximum of 20 minutes.
+What is the scheduled duration of a Twenty20 match? 3 hours.
+What happens if a Twenty20 match ends in a tie in the preliminary rounds? The match is considered a tie.
+What happens if a Twenty20 match ends in a tie in the playoffs? The tie is broken with a one-over per side "Eliminator" or "Super Over".
+How is the winner of a Super Over determined? The team with the higher score from their Super Over wins.
+What happens if the Super Over also ends in a tie? The team whose batsmen hit the most number of boundaries combined from its two innings in both the main match and the Super Over shall be the winner.
+How many fielders are allowed outside the 30-yard circle during the powerplay overs? Maximum of 2 fielders.
+How many fielders are allowed outside the 30-yard circle after the powerplay overs? Maximum of 5 fielders.
+How many fielders can field on the leg side at any point of time? Maximum of 5 fielders.
+How many fielders other than the wicket-keeper, can be behind the popping crease on the on side at the instant of delivery?,Maximum of 2 fielders.
+What is the penalty for unfair movement by the fielding team while the bowler is running in to bowl? Five-run penalty and the delivery is deemed a dead ball.
+What is the maximum number of overs a bowler can bowl in a Twenty20 match? 4 overs.
+What happens if a bowler bowls a ball underarm? The umpire will call and signal no ball, and the ball is to be re-bowled overarm.
+What happens if a bowler bowls a no-ball? The batting team is awarded one run and the next delivery is a free hit.
+What is a free hit? A delivery from which the batsman cannot be dismissed in any way except for being run out, hit wicket, obstructing the field, or hitting the ball twice.
+What happens if the delivery for the free hit is not a legitimate delivery? The next delivery will become a free hit.
+How many fast short-pitched deliveries is a bowler allowed to bowl per over? One.
+What happens if a bowler bowls more than one fast short-pitched delivery in an over? The umpire will call and signal no ball and the bowler will be cautioned. If the bowler bowls another beamer in the same innings, they will be removed from the attack.
+What is a beamer? A ball that is bowled directly at the batsman's head.
+What happens if a bowler bowls a high full pitched ball? The umpire will call and signal no ball and the bowler will be cautioned. If the bowler bowls another beamer in the same innings, they will be removed from the attack.
+How long does a new batsman have to arrive at the crease after the previous batsman has been dismissed? 90 seconds.
+What happens if a batsman is timed out? They are considered to be out and their innings is over.
+Are runners allowed in Twenty20 cricket? No.
+What happens if a batsman is injured and cannot continue batting? They can leave the field as retired hurt and return once fully recovered.
+Can a substitute batsman bat for an injured batsman? No.
+What happens if a batsman is bleeding? They must leave the field of play for medical treatment.
+How is a team's net run rate calculated? By deducting from the average runs per over scored by that team, the average runs per over scored against that team.
+What is the Duckworth-Lewis method? A mathematical formulation designed to calculate the target score for the team batting second in a limited-overs cricket match interrupted by weather or other circumstance.
+What is the minimum number of overs that must be bowled to the team batting second for a match to be considered complete? 5 overs.
+What happens if a match is abandoned due to weather or other circumstances? The match will be decided by comparison with the Duckworth-Lewis 'Par Score'.
+What is a wide ball? A delivery that is bowled too wide of the batsman for them to be able to hit it with a normal cricket stroke.
+What is the penalty for a wide ball? One run is awarded to the batting team.
+What is the difference between a no-ball and a wide ball? A no-ball is an illegal delivery, while a wide ball is a legal delivery that is bowled too wide of the batsman.
+What is the purpose of the powerplay overs? To encourage aggressive batting in the early stages of the game.
+What is the difference between the mandatory powerplay and the batting powerplay? The mandatory powerplay is a fixed period of overs at the start of the innings, while the batting powerplay can be taken by the batting team at any point after the mandatory powerplay.
+How many fielders are allowed outside the 30-yard circle during the batting powerplay? Three fielders.
+What is the purpose of the fielding restrictions? To make it easier for batsmen to score runs.
+What is the penalty for time wasting by the fielding side? Five penalty runs are awarded to the batting team.
+What is the penalty for time wasting by the batting side? Five penalty runs are awarded to the fielding team.
+What is the over-rate penalty? Six runs are awarded to the batting team for each over that the bowling team fails to bowl within the stipulated time.
+What happens if the bowling team fails to bowl the first ball of the final over of their innings within the stipulated time? They will lose one fielder from outside of the 30-yard circle for the remainder of the innings.
+What is the purpose of the net run rate? To rank teams in case of tied standings.
+How is the net run rate calculated? By deducting from the average runs per over scored by that team, the average runs per over scored against that team.
+What is the difference between a catch and a run out? A catch is when a fielder catches the ball after it has been hit by the batsman, while a run out is when a fielder runs out the batsman by hitting the wicket with the ball before the batsman reaches the crease.
+What is the difference between a six and a four? A six is when the ball is hit over the boundary without bouncing, while a four is when the ball is hit over the boundary after bouncing.
+What is the difference between a wicket and a dismissal? A wicket is the object that the batsman is trying to defend, while a dismissal is the act of getting a batsman out.
+What is the difference between a bowler and a batsman? A bowler is the player who bowls the ball, while a batsman is the player who tries to hit the ball.
+What is the difference between a wicket-keeper and a fielder? A wicket-keeper is a specialist fielder who stands behind the wicket, while a fielder is any other player who fields the ball.
+What is the difference between a captain and a vice-captain? The captain is the leader of the team, while the vice-captain is the second-in-command.
+What is the difference between a coach and a manager? The coach is responsible for the team's on-field performance, while the manager is responsible for the team's off-field affairs.
+What is the difference between a Test match and a One Day International? A Test match is a five-day match, while a One Day International is a 50-over match.
+What is the difference between a Twenty20 match and a One Day International? A Twenty20 match is a 20-over match, while a One Day International is a 50-over match.
+What is the difference between a boundary and a six? A boundary is any ball that is hit to the edge of the field, while a six is a ball that is hit over the boundary without bouncing.
+What is the difference between a wicket and a stump? A wicket is the object that the batsman is trying to defend, which consists of three stumps and two bails. A stump is one of the three vertical posts that make up the wicket.
+What is the difference between a ball and an over? A ball is a single delivery bowled by the bowler, while an over is a set of six balls bowled by the same bowler.
+What is the difference between a batsman and a runner? A batsman is the player who is batting, while a runner is a player who runs for the batsman if they are injured or unable to run.
+What is the difference between a substitute and a runner? A substitute is a player who replaces another player who is injured or unable to continue playing, while a runner is a player who runs for the batsman if they are injured or unable to run.
+What is the difference between a catch and a stumping? A catch is when a fielder catches the ball after it has been hit by the batsman, while a stumping is when the wicket-keeper catches the ball and breaks the wicket with the batsman out of his crease.
+What is the difference between a run out and a hit wicket? A run out is when a fielder runs out the batsman by hitting the wicket with the ball before the batsman reaches the crease, while a hit wicket is when the batsman hits the wicket with their bat or body and dislodges the bails.
+What is the difference between a leg before wicket (LBW) and a bowled? A leg before wicket (LBW) is when the batsman's body prevents the ball from hitting the wicket, while a bowled is when the bowler hits the wicket with the ball.
+What is the difference between a yorker and a full toss? A yorker is a ball that is bowled at the batsman's feet, while a full toss is a ball that is bowled above the batsman's waist.
+What is the difference between a bouncer and a beamer? A bouncer is a ball that bounces high and is aimed at the batsman's head, while a beamer is a ball that is bowled directly at the batsman's head without bouncing.
+What is the difference between a googly and a leg break? A googly is a ball that spins in the opposite direction to a leg break.
+What is the difference between a doosra and an off break? A doosra is a ball that spins in the opposite direction to an off break.
+What is the difference between a chinaman and a left-arm orthodox spin? A chinaman is a ball that spins in the opposite direction to a left-arm orthodox spin.
+What is the difference between a carrom ball and a leg break? A carrom ball is a ball that is bowled with a flick of the fingers, while a leg break is bowled with a wrist action.
+What is the difference between a knuckle ball and a fastball? A knuckle ball is a ball that is bowled with little or no spin, while a fastball is bowled with a lot of spin.
+What is the difference between a slower ball and a fastball? A slower ball is bowled with less pace than a fastball.
+What is the difference between a cutter and a fastball? A cutter is a ball that is bowled with a slight off-spin, while a fastball is bowled with no spin.
+What is the difference between a swing bowler and a seam bowler? A swing bowler bowls the ball in such a way that it swings in the air, while a seam bowler bowls the ball in such a way that it bounces off the seam and deviates from its original path.
+What is the difference between a left-arm bowler and a right-arm bowler? A left-arm bowler bowls the ball with their left arm, while a right-arm bowler bowls the ball with their right arm.
+What is the difference between a fast bowler and a spin bowler? A fast bowler bowls the ball at a high speed, while a spin bowler bowls the ball at a slower speed and imparts spin on it.
+What is the difference between a batsman and a wicket-keeper? A batsman is the player who tries to hit the ball, while a wicket-keeper is a specialist fielder who stands behind the wicket.
+What is the difference between a fielder and a bowler? A fielder is any player who fields the ball, while a bowler is the player who bowls the ball.
+What is the difference between a captain and a coach? The captain is the leader of the team on the field, while the coach is responsible for the team's overall performance.
+What is the difference between a Test match and a Twenty20 match? A Test match is a five-day match, while a Twenty20 match is a 20-over match.
+What is the difference between a One Day International and a Twenty20 match? A One Day International is a 50-over match, while a Twenty20 match is a 20-over match.
+What is the difference between a boundary and a six? A boundary is any ball that is hit to the edge of the field, while a six is a ball that is hit over the boundary without bouncing.
+What is the difference between a wicket and a stump? A wicket is the object that the batsman is trying to defend, which consists of three stumps and two bails. A stump is one of the three vertical posts that make up the wicket.
+What is the difference between a ball and an over? A ball is a single delivery bowled by the bowler, while an over is a set of six balls bowled by the same bowler.
+What is the difference between a batsman and a runner? A batsman is the player who is batting, while a runner is a player who runs for the batsman if they are injured or unable to run.
+What is the difference between a substitute and a runner? A substitute is a player who replaces another player who is injured or unable to continue playing, while a runner is a player who runs for the batsman if they are injured or unable to run.
+What is the difference between a catch and a stumping? A catch is when a fielder catches the ball after it has been hit by the batsman, while a stumping is when the wicket-keeper catches the ball and breaks the wicket with the batsman out of his crease.
+What is the difference between a run out and a hit wicket? A run out is when a fielder runs out the batsman by hitting the wicket with the ball before the batsman reaches the crease, while a hit wicket is when the batsman hits the wicket with their bat or body and dislodges the bails.
+What is the difference between a leg before wicket (LBW) and a bowled? A leg before wicket (LBW) is when the batsman's body prevents the ball from hitting the wicket, while a bowled is when the bowler hits the wicket with the ball.
+What is the difference between a yorker and a full toss? A yorker is a ball that is bowled at the batsman's feet, while a full toss is a ball that is bowled above the batsman's waist.
+What is the difference between a bouncer and a beamer? A bouncer is a ball that bounces high and is aimed at the batsman's head, while a beamer is a ball that is bowled directly at the batsman's head without bouncing.
+What is the difference between a googly and a leg break? A googly is a ball that spins in the opposite direction to a leg break.
+What is the difference between a doosra and an off break? A doosra is a ball that spins in the opposite direction to an off break.
+What is the difference between a chinaman and a left-arm orthodox spin? A chinaman is a ball that spins in the opposite direction to a left-arm orthodox spin.
+What is the difference between a carrom ball and a leg break? A carrom ball is a ball that is bowled with a flick of the fingers, while a leg break is bowled with a wrist action.
+What is the difference between a knuckle ball and a fastball? A knuckle ball is a ball that is bowled with little or no spin, while a fastball is bowled with a lot of spin.
+What is the difference between a slower ball and a fastball? A slower ball is bowled with less pace than a fastball.
+What is the difference between a cutter and a fastball? A cutter is a ball that is bowled with a slight off-spin, while a fastball is bowled with no spin.
+What is the difference between a swing bowler and a seam bowler? A swing bowler bowls the ball in such a way that it swings in the air, while a seam bowler bowls the ball in such a way that it bounces off the seam and deviates from its original path.
+What is the difference between a left-arm bowler and a right-arm bowler? A left-arm bowler bowls the ball with their left arm, while a right-arm bowler bowls the ball with their right arm.
+What is the difference between a fast bowler and a spin bowler? A fast bowler bowls the ball at a high speed, while a spin bowler bowls the ball at a slower speed and imparts spin on it.
