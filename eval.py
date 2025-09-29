@@ -1,5 +1,5 @@
 """
-Sample from a trained model
+Eval from a trained model
 """
 import os
 import pickle
@@ -21,8 +21,6 @@ top_k = 200 # retain only the top_k most likely tokens, clamp others to have 0 p
 seed = 1337
 device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1', etc.
 dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16' # 'float32' or 'bfloat16' or 'float16'
-show_probs = False
-fixed_response_text = ""
 compile = False # use PyTorch 2.0 to compile the model to be faster
 exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
@@ -88,21 +86,36 @@ if start.startswith('FILE:'):
 start_ids = encode(start)
 x = (torch.tensor(start_ids, dtype=torch.long, device=device)[None, ...])
 
+# --- Added: Define the evaluation function for prompt-response pairs ---
 def eval(eval_file):
+    # Load evaluation data from JSON file
     with open(eval_file, 'r') as f:
         data = json.load(f)
     total_prob = 0.0
+    # Loop through each prompt-response pair
     for pair in data:
         prompt = pair["prompt"]
         response = pair["response"]
+        # Encode prompt and response
         prompt_ids = encode(prompt)
         response_ids = encode(response)
+        # Prepare input tensor
         x = torch.tensor(prompt_ids, dtype=torch.long, device=device)[None, ...]
-        _, sequence_prob = model.generate(x, max_new_tokens=len(response_ids), temperature=temperature, top_k=top_k, fixed_response=response_ids)
+        # Call model.generate with fixed_response to get probability
+        _, sequence_prob = model.generate(
+            x, 
+            max_new_tokens=len(response_ids), 
+            temperature=temperature, 
+            top_k=top_k, 
+            fixed_response=response_ids
+        )
+        # Print prompt, response, and probability
         print(f'Prompt: {prompt}\nResponse: {response}\nProbability: {sequence_prob:.4e}\n---')
         total_prob += sequence_prob
+    # Print sum of probabilities for all pairs
     print(f"Sum of probabilities: {total_prob:.4e}")
 
+# --- Added: Run evaluation if script is executed directly ---
 if __name__ == "__main__":
     eval_file = "eval_data.json"
     eval(eval_file)

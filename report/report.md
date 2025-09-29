@@ -8,39 +8,6 @@ In `model.py`, I updated the `generate` function so that, if the `show_probs` fl
 
 In `sample.py`, I added a command-line flag called `--show_probs`. When this flag is used, the script uses Matplotlib to plot a bar chart after each token is generated. The chart shows the top 10 tokens probabilities, and the token that was actually picked is highlighted in red. This makes it easy to see how confident the model was at each step and which token it chose.
 
-```python
-# Added to model.py (inside GPT.generate)
-
-# Before the generation loop
-all_probs = []
-# Inside the generation loop
-top_probs, top_idx = torch.topk(probs, 10)
-if show_probs:
-    all_probs.append({
-        "top_idx": top_idx[0].cpu().tolist(),
-        "top_probs": top_probs[0].cpu().tolist(),
-        "selected_token": idx_next[0, 0].item()
-    })
-```
-
-```python
-# Added to sample.py (inside the main generation loop)
-if show_probs:
-    y, all_probs = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k, show_probs=show_probs)
-    print(decode(y[0].tolist()))
-    print('---------------')
-    # Visualize each step
-    for step, prob_info in enumerate(all_probs):
-        top_idx = prob_info["top_idx"]
-        top_probs = prob_info["top_probs"]
-        selected_token = prob_info["selected_token"]
-        colors = ['red' if i == selected_token else 'blue' for i in top_idx]
-        plt.bar(range(10), top_probs, color=colors)
-        plt.xticks(range(10), [decode([i]) for i in top_idx])
-        plt.title(f"Step {step+1}: Token Probabilities")
-        plt.show()
-```
-
 **Sample Output:**
 
 Prompt used: `Wellington is`
@@ -64,7 +31,7 @@ The `temperature` parameter changes how random the model is when picking the nex
 ![Low temperature chart](assets/1-1-low-temp.png)
 - With `temperature=1.0`, the output is more varied and interesting.
 ![Medium temperature chart](assets/1-1-mid-temp.png)
-- With `temperature=2.0`, the output can get random and sometimes doesn't make sense.
+- With `temperature=2.0`, the output can get random and is more likely to not make sense.
 ![High temperature chart](assets/1-1-high-temp.png)
 
 **Summary:**
@@ -78,25 +45,7 @@ To calculate the probability of a generated sequence, I modified the `generate` 
 Now, as each token is generated, I record the probability assigned to that token by the model.
 I use log probabilities for each token to avoid numerical underflow, then sum them up and exponentiate the result to get the final sequence probability.
 
-** Code excerpts from `model.py`:**
-```python
-# Inside GPT.generate
-sequence_log_prob = 0.0
-for _ in range(max_new_tokens):
-    # ...existing code...
-    token_prob = probs[0, idx_next[0, 0]].item()
-    sequence_log_prob += math.log(token_prob + 1e-10)
-    # ...existing code...
-sequence_prob = math.exp(sequence_log_prob)
-return idx, sequence_prob
-```
-
 In `sample.py`, I unpack the returned values and print both the generated text and its probability:
-```python
-y, sequence_prob = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
-print(decode(y[0].tolist()))
-print(f"Sequence probability: {sequence_prob:.4e}")
-```
 
 **Sample Output:**
 Prompt: `I live in`
@@ -126,43 +75,28 @@ This approach is standard for working with probabilities in long sequences in ma
 To compute the probability of a fixed sequence, I further modified the `generate` function in `model.py` to accept an optional argument called `fixed_response`.
 If `fixed_response` is provided (as a list of token IDs), the function uses these tokens instead of sampling, and calculates the probability the model assigns to that exact sequence.
 
-In `sample.py`, I added a variable `fixed_response_text`. If this is set (not empty), the code encodes it into tokens and passes it to `generate` as `fixed_response`. The output is the probability of the model generating that exact sequence after the prompt.
+In `sample.py`, I added a variable `fixed_response`. If this is set (not empty), the code encodes it into tokens and passes it to `generate` as `fixed_response`. The output is the probability of the model generating that exact sequence after the prompt.
 
-**Code excerpt from `model.py`:**
-```python
-# Inside GPT.generate
-if fixed_response != "":
-    for token in fixed_response:
-        idx_cond = generated if generated.size(1) <= self.config.block_size else generated[:, -self.config.block_size:]
-        logits, _ = self(idx_cond)
-        logits = logits[:, -1, :] / temperature
-        probs = F.softmax(logits, dim=-1)
-        token_prob = probs[0, token].item()
-        sequence_log_prob += math.log(token_prob + 1e-10)
-        token_tensor = torch.tensor([[token]], device=generated.device)
-        generated = torch.cat((generated, token_tensor), dim=1)
-    sequence_prob = math.exp(sequence_log_prob)
-    return generated, sequence_prob
-```
+**Example Output #1:**
 
-**Code excerpt from `sample.py`:**
-```python
-if fixed_response_text != "":
-    fixed_response_tokens = encode(fixed_response_text)
-    y, sequence_prob = model.generate(x, max_new_tokens=len(fixed_response_tokens), temperature=temperature, top_k=top_k, fixed_response=fixed_response_tokens)
-    print(decode(y[0].tolist()))
-    print(f"Probability of fixed sequence: {sequence_prob:.4e}")
-```
-
-**Example Output:**
-
-Prompt: `I live in`
-Fixed response: `New Zealand`
+Prompt: `I live in` 
+Fixed response:  `  New Zealand` (notice the space at the start)
 Settings: `max_new_tokens=2`, `temperature=1.0`
 
 ```
 I live in New Zealand
-Probability of fixed sequence: 1.9278e-12
+Probability of fixed sequence: 9.9892e-04
+```
+
+**Example Output #2:**
+
+Prompt: `Cricket is`
+Fixed response: `  a game` (again, space at the start)
+Settings: `max_new_tokens=2`, `temperature=1.0`
+
+```
+Cricket is a game
+Probability of fixed sequence: 1.7348e-02
 ```
 
 ---
@@ -197,34 +131,18 @@ The evaluation pairs are stored in a JSON file called `eval_data.json`, which co
 In `eval.py`, I adapted the code from `sample.py` to load the model and tokenizer, then defined an `eval` function.
 This function reads the evaluation data, encodes each prompt and response, and calls the model's `generate` function with the prompt and the fixed response tokens.
 For each pair, it prints the probability that the model assigns to the response, given the prompt, and sums these probabilities.
-**Code excerpt from `eval.py`:**
-```python
-def eval(eval_file):
-    with open(eval_file, 'r') as f:
-        data = json.load(f)
-    total_prob = 0.0
-    for pair in data:
-        prompt = pair["prompt"]
-        response = pair["response"]
-        prompt_ids = encode(prompt)
-        response_ids = encode(response)
-        x = torch.tensor(prompt_ids, dtype=torch.long, device=device)[None, ...]
-        _, sequence_prob = model.generate(x, max_new_tokens=len(response_ids), temperature=temperature, top_k=top_k, fixed_response=response_ids)
-        print(f'Prompt: {prompt}\nResponse: {response}\nProbability: {sequence_prob:.4e}\n---')
-        total_prob += sequence_prob
-    print(f"Sum of probabilities: {total_prob:.4e}")
-```
+
 **Example output:**
 ```
 Prompt: I live in
-Response: New Zealand
-Probability: 9.98413e-13
+Response:  New Zealand
+Probability: 5.5949e-04
 ---
 Prompt: The capital of France is
-Response: Paris
-Probability: 1.0000e-10
+Response:  Paris
+Probability: 5.6174e-02
 ---
-Sum of probabilities: 1.0100e-10
+Sum of probabilities: 5.5673e-02
 ```
 
 ---
@@ -249,7 +167,7 @@ This harness allows for a straightforward comparison of how likely the model is 
 
 ### (a) Corpus Description
 
-FOr fine-tuning my GPT model, I selected the [cricket-rules dataset](https://huggingface.co/datasets/srivats666/cricket-rules) from Hugging Face.
+For fine-tuning my GPT model, I selected the [cricket-rules dataset](https://huggingface.co/datasets/srivats666/cricket-rules) from Hugging Face.
 This corpus contains the rules and regulations of cricket in English. The language is highly specialised, featuring technical terms and concepts unique to cricket, such as "LWB" (Leg Before Wicket), "Super Over", "powerplay", and "Duckworth-Lewis method".
 The dataset is structured as question-answer pairs, which makes it suitable for training and evaluating models on factual recall and rule-based reasoning in the domain of cricket.
 
@@ -264,11 +182,11 @@ Hand-crafting allows me to select questions that are representative of the speci
 [
     {
         "prompt": "What is the penalty for a bowler delivering a no-ball in Twenty20 cricket?",
-        "response": "The batting team is awarded one run and the next delivery is a free hit."
+        "response": " The batting team is awarded one run and the next delivery is a free hit."
     },
     {
         "prompt": "How many players must a cricket team have to start a match?",
-        "response": "A team must have at least 11 players to start a match."
+        "response": " A team must have at least 11 players to start a match."
     },
 ]
 ```
@@ -287,12 +205,12 @@ Hand-crafting the evaluation set ensures that the prompts are clear, relevant, a
 To evaluate the effect of fine-tuning, I first ran my `eval.py` harness on the evaluation set both before and after fine-tuning the GPT-2 model on the cricket-rules dataset.
 
 **Before fine-tuning:**
-Sum of probabilities: 1.9442e-13
+Sum of probabilities: 7.2037e-08
 
 **After fine-tuning:**
-Sum of probabilities: 4.2759e-11
+Sum of probabilities: 1.0168e-07
 
-This shows that the fine-tuned model assigns much higher probability to the correct cricket-rule responses compared to the base GTP-2 model. Even with a short training run, the model has clearly adapted to the specialised cricket domain, as evidenced by the increased probability scores for the evaluation set.
+This shows that the fine-tuned model assigns higher probability to the correct cricket-rule responses compared to the base GTP-2 model. Even with a short training run, the model has clearly adapted to the specialised cricket domain, as evidenced by the increased probability scores for the evaluation set.
 
 ### (b) Other Evaluation Methods
 
@@ -312,14 +230,14 @@ Other possible methods include human evaluation (rating and relevance and correc
 
 ### Introduction
 
-The training loop in `train.py` is the main part of nanoGPT that teaches the model to get better at predicting text. It uses PyTorch to handle the process of updating the model's weights so it learns from the data. Below, I explain the key steps in the loop, wide code snippets and explanations.
+The training loop in `train.py` is the main part of nanoGPT that teaches the model to get better at predicting text. It uses PyTorch to handle the process of updating the model's weights so it learns from the data. Below, I explain the key steps in the loop, with code snippets and explanations.
 
 ### 1. Loading Batches of Data
 
-The loop uses the `get_batch` function to load small chunks of data (batches) from the training set. This is efficient because it uses memory-mapped filed, which means it doesn't load everything into RAM at once.
+The loop uses the `get_batch` function to load small chunks of data (batches) from the training set. This is efficient because it uses memory-maps, which means it doesn't load everything into RAM at once.
 
 ```python
-# Xxtract from train.py
+# Extract from train.py
 def get_batch(split):
     data = np.memmap(os.path.join(data_dir, f'{split}.bin'), dtype=np.uint16, mode='r')
     ix = torch.randint(len(data) - block_size, (batch_size,))
@@ -333,7 +251,7 @@ def get_batch(split):
 
 ### 2. Forward and Backward Passes
 
-For each batch, the model does a forward pass to calculate the loss, then a backward pass to compute gradients.
+During training, the model first does a forward pass: it takes the input data and target labels, runs them through the model, and calculates both the predicted outputs and the loss. Then, in the backward pass, the model computes gradients based on the loss, which are used to update its weights and improve future predictions.
 
 ```python
 # Extract from train.py
@@ -342,7 +260,7 @@ with ctx:
 scaler.scale(loss).backward()
 ```
 
-**Explanation:** The `ctx` context manager enables mixed precision if available, making training faster and less memory-intensive. The `scaler` handles gradient scaling for stability when using float16.
+**Explanation:** The `ctx` context manager enables mix precision if available, which means some calculations use 16-bit floats for speed and memory savings, while others use 32-bit floats for accuracy. The scaler helps with gradient scaling, making sure the gradients are large enough to be represented correctly when using mixed precision. This combination makes training faster and more stable, especially on modern GPUs.
 
 ### 3. Gradient Accumulation
 
@@ -438,33 +356,6 @@ Beam search is a decoding strategy that, instead of greedily selecting the most 
 - In `model.py`, I added a `beam_search` flag and a `beam_width` parameter to the `generate` function. When `beam_search=True`, the function maintains a list of beams, expanding and pruning them at each generation step.
 - In `sample.py`, I added command-line flags for `beam_search` and `beam_width`, allowing easy switching between greedy, sampling, and beam search decoding.
 
-*Relevant code except from `model.py`:*
-
-```python
-if beam_search:
-            beams = [(idx, 0.0)]
-            for _ in range(max_new_tokens):
-                candidates = []
-                for seq, seq_log_prob in beams:
-                    idx_cond = seq if seq.size(1) <= self.config.block_size else seq[:, -self.config.block_size:]
-                    logits, _ = self(idx_cond)
-                    logits = logits[:, -1, :] / temperature
-                    if top_k is not None:
-                        v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
-                        logits[logits < v[:, [-1]]] = -float('Inf')
-                    probs = F.softmax(logits, dim=-1)
-                    top_probs, top_idx = torch.topk(probs, beam_width)
-                    for prob, token in zip(top_probs[0], top_idx[0]):
-                        new_seq = torch.cat((seq, token.view(1, 1)), dim=1)
-                        new_log_prob = seq_log_prob + math.log(prob.item() + 1e-10)
-                        candidates.append((new_seq, new_log_prob))
-                candidates.sort(key=lambda x: x[1], reverse=True)
-                beams = candidates[:beam_width]
-            best_seq, best_log_prob = beams[0]
-            sequence_prob = math.exp(best_log_prob)
-            return best_seq, sequence_prob
-```
-
 *What this adds:*
 
 Beam search provides a more robust decoding strategy, especially for tasks where the most probable sequence is desired. It is widely used in machine translation and text generation to improve output quality over greedy or random sampling.
@@ -477,10 +368,10 @@ To demonstrate beam search, I compared outputs for both a fine-tuned cricket rul
 
 *Cricket Domain: `"The rules of cricket state that"`*
 
-| Method      | Command                                                      | Output (truncated)                                           |
+| Method      | Command                                                      | Output                                                       |
 | ----------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Greedy      | `python sample.py --init_from=resume --out_dir=out-cricketrules --start="The rules of cricket state that" --num_samples=1 --max_new_tokens=30 --temperature=0.0001` | The rules of cricket state that a team must be the same as the one that won the previous match. What is the difference between a captain and a a-list player? |
-| Sampling    | `python sample.py --init_from=resume --out_dir=out-cricketrules --start="The rules of cricket state that" --num_samples=3 --max_new_tokens=30 --temperature=1.0` | The rules of cricket state that a team is to lose by four runs after the first over of the next two. ...<br>The rules of cricket state that the batting team has the right to go on the field for the first over of 20 overs. ...<br>The rules of cricket state that the five wicket-score wicket must be below the batting average. ... |
+| Sampling    | `python sample.py --init_from=resume --out_dir=out-cricketrules --start="The rules of cricket state that" --num_samples=3 --max_new_tokens=30 --temperature=1.0` | The rules of cricket state that a team is to lose by four runs after the first over of the next two.<br />The rules of cricket state that the batting team has the right to go on the field for the first over of 20 overs.<br />The rules of cricket state that the five wicket-score wicket must be below the batting average. |
 | Beam Search | `python sample.py --init_from=resume --out_dir=out-cricketrules --start="The rules of cricket state that" --num_samples=1 --max_new_tokens=30 --temperature=0.8 --beam_search=True --beam_width=5` | The rules of cricket state that the team that wins the match must be the same as that team that lost the match. What is the difference between a captain and a manager? |
 
 *General Domain: `"The capital of France is"`*

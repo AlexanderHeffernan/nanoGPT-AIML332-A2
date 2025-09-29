@@ -309,14 +309,20 @@ class GPT(nn.Module):
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
         Most likely you'll want to make sure to be in model.eval() mode of operation for this.
         """
-        all_probs = []
-        sequence_log_prob = 0.0
-        generated = idx
+        # --- Added: Initialize additional variables ---
+        all_probs = [] # Stores top token probabilities if show_probs is True
+        sequence_log_prob = 0.0 # Log probability of the generated sequence
+
+        # --- Added: Beam Search Decoding ---
         if beam_search:
+            # Instead of sampling one token at a time, keep track of the top `beam_width` sequences (beams).
+            # At each step, expand each beam by all possible next tokens, score the, and keep the best 'beam_width' candidates.
+            # This allows the model to explore multiple possible continuations and select the most probable overall sequence.
             # Beam search implementation
-            beams = [(idx, 0.0)]  # Each beam: (sequence tensor, cumulative log prob)
+
+            beams = [(idx, 0.0)]  # Each beam is a tuple: (sequence tensor, cumulative log prob)
             for _ in range(max_new_tokens):
-                candidates = []
+                candidates = [] # Will hold all possible next-step beams
                 for seq, seq_log_prob in beams:
                     idx_cond = seq if seq.size(1) <= self.config.block_size else seq[:, -self.config.block_size:]
                     logits, _ = self(idx_cond)
@@ -325,22 +331,32 @@ class GPT(nn.Module):
                         v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
                         logits[logits < v[:, [-1]]] = -float('Inf')
                     probs = F.softmax(logits, dim=-1)
+
+                    # Get top 'beam_width' tokens and their probabilities
                     top_probs, top_idx = torch.topk(probs, beam_width)
                     for prob, token in zip(top_probs[0], top_idx[0]):
+                        # Create new candidate beam by appending token
                         new_seq = torch.cat((seq, token.view(1, 1)), dim=1)
+                        # Update cumulative log probability for this beam
                         new_log_prob = seq_log_prob + math.log(prob.item() + 1e-10)
                         candidates.append((new_seq, new_log_prob))
-                # Keep top beam_width candidates
+                
+                # Sort all candidates by log probability and keep top 'beam_width'
                 candidates.sort(key=lambda x: x[1], reverse=True)
                 beams = candidates[:beam_width]
-            # Return the best sequence and its probability
+            
+            # After all steps, select the best beam (highest log probability)
             best_seq, best_log_prob = beams[0]
             sequence_prob = math.exp(best_log_prob)
+
+            # Return the best sequence and its probability
             return best_seq, sequence_prob
+        
+        # --- Added: Handle fixed response case ---
         elif fixed_response != "":
-            # Use provided tokens instead of sampling
+            # Loop through each token in the fixed response instead of sampling
             for token in fixed_response:
-                idx_cond = generated if generated.size(1) <= self.config.block_size else generated[:, -self.config.block_size:]
+                idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
                 logits, _ = self(idx_cond)
                 logits = logits[:, -1, :] / temperature
                 if top_k is not None:
@@ -348,12 +364,16 @@ class GPT(nn.Module):
                     logits[logits < v[:, [-1]]] = -float('Inf')
                 probs = F.softmax(logits, dim=-1)
                 token_prob = probs[0, token].item()
-                sequence_log_prob += math.log(token_prob + 1e-10)
                 # Append the fixed token
-                token_tensor = torch.tensor([[token]], device=generated.device)
-                generated = torch.cat((generated, token_tensor), dim=1)
+                token_tensor = torch.tensor([[token]], device=idx.device)
+                idx = torch.cat((idx, token_tensor), dim=1)
+
+                # --- Added: Update sequence log probability ---
+                sequence_log_prob += math.log(token_prob + 1e-10) # add small value to avoid log(0)
+
+            # --- Added: Compute final sequence probability ---
             sequence_prob = math.exp(sequence_log_prob)
-            return generated, sequence_prob
+            return idx, sequence_prob
         else:
             for _ in range(max_new_tokens):
                 # if the sequence context is growing too long we must crop it at block_size
@@ -368,23 +388,30 @@ class GPT(nn.Module):
                     logits[logits < v[:, [-1]]] = -float('Inf')
                 # apply softmax to convert logits to (normalized) probabilities
                 probs = F.softmax(logits, dim=-1)
-                # Get top 10 tokens
-                top_probs, top_idx = torch.topk(probs, 10)
                 # sample from the distribution
                 idx_next = torch.multinomial(probs, num_samples=1)
                 # Get the probability of selected token
                 token_prob = probs[0, idx_next[0, 0]].item()
-                sequence_log_prob += math.log(token_prob + 1e-10) # add small value to avoid log(0)
                 # append sampled index to the running sequence and continue
                 idx = torch.cat((idx, idx_next), dim=1)
+
+                # --- Added: Collect top 10 token probabilities if requested for visualization ---
                 if show_probs:
+                    top_probs, top_idx = torch.topk(probs, 10)
                     # Save top token indices, their probabilities, and the selected token
                     all_probs.append({
                         "top_idx": top_idx[0].cpu().tolist(),
                         "top_probs": top_probs[0].cpu().tolist(),
                         "selected_token": idx_next[0, 0].item()
                     })
+
+                # --- Added: Update sequence log probability ---
+                sequence_log_prob += math.log(token_prob + 1e-10) # add small value to avoid log(0)
+
+            # --- Added: Compute final sequence probability ---
             sequence_prob = math.exp(sequence_log_prob)
+
+            # --- Added: Return probabilities if requested ---
             if show_probs:
                 return idx, sequence_prob, all_probs;
             else:

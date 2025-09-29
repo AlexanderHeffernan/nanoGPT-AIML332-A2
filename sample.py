@@ -20,8 +20,10 @@ top_k = 200 # retain only the top_k most likely tokens, clamp others to have 0 p
 seed = 1337
 device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1', etc.
 dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16' # 'float32' or 'bfloat16' or 'float16'
-show_probs = False
-fixed_response_text = ""
+
+# --- Added: Additional flags ---
+show_probs = False  # whether to plot token probabilities at each generation step
+fixed_response = ""
 beam_search = False
 beam_width = 3
 compile = False # use PyTorch 2.0 to compile the model to be faster
@@ -93,14 +95,22 @@ x = (torch.tensor(start_ids, dtype=torch.long, device=device)[None, ...])
 with torch.no_grad():
     with ctx:
         for k in range(num_samples):
+            # -- Added: Handle beam search if beam_search is True ---
             if beam_search:
                 y, sequence_prob = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k, beam_search=True, beam_width=beam_width)
                 print(decode(y[0].tolist()))
+
+                # --- Added: Print sequence probability ---
                 print(f"[Beam Search] Sequence probability: {sequence_prob:.4e}")
                 print('---------------')
+
+            # --- Added: Show probabilities plot if show_probs is True ---
             elif show_probs:
+                # Generate with probability tracking
                 y, sequence_prob, all_probs = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k, show_probs=show_probs)
                 print(decode(y[0].tolist()))
+
+                # --- Added: Print sequence probability ---
                 print(f"Sequence probability: {sequence_prob:.4e}")
                 print('---------------')
                 # Visualize each step
@@ -113,14 +123,23 @@ with torch.no_grad():
                     plt.xticks(range(10), [decode([i]) for i in top_idx])
                     plt.title(f"Step {step+1}: Token Probabilities")
                     plt.show()
-            elif fixed_response_text != "":
-                fixed_response_tokens = encode(fixed_response_text)
+
+            # --- Added: Handle fixed response if provided ---
+            elif fixed_response != "":
+                # Tokenize the fixed response
+                fixed_response_tokens = encode(fixed_response)
+
+                # Generate with fixed response
                 y, sequence_prob = model.generate(x, max_new_tokens=len(fixed_response_tokens), temperature=temperature, top_k=top_k, fixed_response=fixed_response_tokens)
                 print(decode(y[0].tolist()))
+
+                # --- Added: Print sequence probability ---
                 print(f"Probability of fixed sequence: {sequence_prob:.4e}")
                 print('---------------')
             else:
                 y, sequence_prob = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
                 print(decode(y[0].tolist()))
+
+                # --- Added: Print sequence probability ---
                 print(f"Sequence probability: {sequence_prob:.4e}")
                 print('---------------')
