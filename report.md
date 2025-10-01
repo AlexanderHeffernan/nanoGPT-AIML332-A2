@@ -1,3 +1,5 @@
+# AIML332 Assignment 2 – hefferalex (300651328)
+
 ## Submission and Access Instructions
 
 All soure code for this assignment is available in my GitHub repository: [https://github.com/AlexanderHeffernan/nanoGPT-AIML332-A2](https://github.com/AlexanderHeffernan/nanoGPT-AIML332-A2)
@@ -127,6 +129,8 @@ This means the longer sequences almost always have lower probabilities than shor
 This is a general property of autoregressive models: the probability of a sequence is the product of the conditional probabilities of each token given the previous tokens.
 
 ---
+
+<div style="page-break-after: always; break-after: page;"></div>
 
 ## 2.1 Evaluation Harness
 
@@ -392,6 +396,8 @@ To demonstrate beam search, I compared outputs for both a fine-tuned cricket rul
 | Greedy      | `python sample.py --init_from=resume --out_dir=out-cricketrules --start="The rules of cricket state that" --num_samples=1 --max_new_tokens=30 --temperature=0.0001` | The rules of cricket state that a team must be the same as the one that won the previous match. What is the difference between a captain and a a-list player? |
 | Sampling    | `python sample.py --init_from=resume --out_dir=out-cricketrules --start="The rules of cricket state that" --num_samples=3 --max_new_tokens=30 --temperature=1.0` | The rules of cricket state that a team is to lose by four runs after the first over of the next two.<br />The rules of cricket state that the batting team has the right to go on the field for the first over of 20 overs.<br />The rules of cricket state that the five wicket-score wicket must be below the batting average. |
 | Beam Search | `python sample.py --init_from=resume --out_dir=out-cricketrules --start="The rules of cricket state that" --num_samples=1 --max_new_tokens=30 --temperature=0.8 --beam_search=True --beam_width=5` | The rules of cricket state that the team that wins the match must be the same as that team that lost the match. What is the difference between a captain and a manager? |
+
+<div style="page-break-after: always; break-after: page;"></div>
 
 *General Domain: `"The capital of France is"`*
 

@@ -4,10 +4,12 @@ This repository contains my submission for AIML332 Assignment 2. I have forked a
 
 ## Setup
 
-Before running any code, install the required Python packages:
+For best results, use the exact package versions from my working environment:
 
 ```bash
-pip install torch tiktoken matplotlib
+conda create -n nanogpt_env python=3.12
+conda activate nanogpt_env
+pip install torch==2.8.0 transformers==2.2.0 tiktoken==0.11.0 matplotlib==3.10.6
 ```
 
 If you are on a Mac with Apple Silicon, you may want to use the `mps` device for faster training/inference. Else, use `cuda` if you have an NVIDIA GPU, or `cpu` otherwise.
@@ -53,7 +55,7 @@ This is calculated by multiplying the probabilities of each generated token (see
 To compute the probability that the model assigns to a specific, fixed response after a prompt, use the `--fixed_response` flag:
 
 ```bash
-python sample.py --init_from=gpt2 --start="What is the capital of France?" --fixed_response="The capital of France is Paris." --num_samples-1 --device=mps
+python sample.py --init_from=gpt2 --start="What is the capital of France?" --fixed_response="The capital of France is Paris." --num_samples=1 --device=mps
 ```
 
 ### 4. Evaluation Harness (`eval.py`) (2.1)
@@ -66,7 +68,7 @@ python eval.py --init_from=gpt2 --device=mps
 
 ### 5. Evaluate the Cricket Fine-Tuned Model (2.3)
 
-To evaluate the fine-tuned cricket model, make sure you set the correct output directory:
+To evaluate the fine-tuned cricket model, make sure you set the correct output directory and have the checkpoint in place. Then run:
 
 ```bash
 python eval.py --init_from=resume --out_dir=out-cricketrules --device=mps
