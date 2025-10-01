@@ -4,7 +4,7 @@
 
 To visualize how the GPT model decides on the next token, I changed the code in both `model.py` and `sample.py`.
 
-In `model.py`, I updated the `generate` function so that, if the `show_probs` flag is set to true, it collects the top 10 token probabilities at each step of generation. This means for every new token, the model keeps track of which tokens were most likely and what their probabilities were.
+In `model.py`, I updated the `generate` function so that if the `show_probs` flag is set to true, it collects the top 10 token probabilities at each step of generation. This means for every new token, the model keeps track of which tokens were most likely and what their probabilities were.
 
 In `sample.py`, I added a command-line flag called `--show_probs`. When this flag is used, the script uses Matplotlib to plot a bar chart after each token is generated. The chart shows the top 10 tokens probabilities, and the token that was actually picked is highlighted in red. This makes it easy to see how confident the model was at each step and which token it chose.
 
@@ -16,7 +16,9 @@ Example generated text:
 ```
 Wellington is a man of great service and humility who reflects on
 ```
-![Token probability bar chart](assets/1-1-sample-output.png)
+<img src="assets/1-1-sample-output.png" alt="Token probability bar chart" style="zoom: 25%;" />
+
+---
 
 ### (b) Effect of Temperature on Token Selection
 
@@ -25,17 +27,18 @@ The `temperature` parameter changes how random the model is when picking the nex
 - **Low temperature (e.g., 0.2):** The probability distribution is sharp, so the model almost always picks the most likely token. The bar chart will show one tall bar and the rest very small.
 - **High temperature (e.g., 2.0):** The distribution is flatter, so the model is more likely to pick less probable tokens. The chart will show bars that are more even in height.
 
+
+
 **Examples:**
 
-- With `temperature=0.2`, the output is predictable.
-![Low temperature chart](assets/1-1-low-temp.png)
-- With `temperature=1.0`, the output is more varied and interesting.
-![Medium temperature chart](assets/1-1-mid-temp.png)
-- With `temperature=2.0`, the output can get random and is more likely to not make sense.
-![High temperature chart](assets/1-1-high-temp.png)
+| `temperature=0.2`                                            | `temperature=1.0`                                            | `temperature=2.0`                                            |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <img src="assets/1-1-low-temp.png" alt="Low temperature chart" style="zoom: 25%;" /><br />The output is predictable. | <img src="assets/1-1-mid-temp.png" alt="Medium temperature chart" style="zoom: 25%;" /><br />The output if more varied and interesting. | <img src="assets/1-1-high-temp.png" alt="High temperature chart" style="zoom: 25%;" /><br />The output can get random and is more likely to not make sense. |
 
 **Summary:**
 Changing the temperature affects how confident or random the model is. Lower temperature makes the model stick to the most likely tokens, while higher temperature makes it take more risks.
+
+----
 
 ## 1.2 Sequence Probability
 
@@ -67,6 +70,8 @@ Sequence probability: 1.0000e+00
 - At the end, we exponentiate the sum to get the actual probability.
 
 This approach is standard for working with probabilities in long sequences in machine learning.
+
+---
 
 ## 1.3 Probability of a Fixed Sequence
 
@@ -111,7 +116,9 @@ This means the longer sequences almost always have lower probabilities than shor
 - For a short fixed response (e.g., `"NZ"`), the probability was higher (1.0000e-10).
 - For a longer fixed response (e.g., `"New Zealand which is a country"`), the probability dropped significantly (4.9344e-17).
 
-This is a general property of autoregressive models: the probability of a sequence is the product of the conditional probabilities of each token given the preious tokens.
+This is a general property of autoregressive models: the probability of a sequence is the product of the conditional probabilities of each token given the previous tokens.
+
+---
 
 ## 2.1 Evaluation Harness
 
@@ -225,6 +232,8 @@ Generate responses to prompts using the model and compare them to reference answ
 Other possible methods include human evaluation (rating and relevance and correctness of answers) or measuring perplexity on a held-out set of cricket-rule text.
 
 ---
+
+<div style="page-break-after: always; break-after: page;"></div>
 
 ## 3.1 Code Explanation: The Training Loop in `train.py`
 
@@ -343,6 +352,8 @@ iter 3: loss 3.0078, time 14253.28ms, mfu -100.00%
 
 The training loop in `train.py` is a clear example of how to train a transformer model using PyTorch. It covers all the important steps: loading data, calculating loss, updating weights, handling memory limits, and saving progress. By understanding these steps, I can adjust training for different datasets and hardware.
 
+---
+
 ## 3.2 Extension: Beam Search Decoding in nanoGPT
 
 **(a) Description of the Feature and Its Value**
@@ -376,11 +387,11 @@ To demonstrate beam search, I compared outputs for both a fine-tuned cricket rul
 
 *General Domain: `"The capital of France is"`*
 
-| Method      | Command                                                      | Output (truncated)                                           |
+| Method      | Command                                                      | Output                                                       |
 | ----------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Greedy      | `python sample.py --init_from=gpt2 --start="The capital of France is" --num_samples=1 --max_new_tokens=20 --temperature=0.0001` | The capital of France is the capital of the French Republic, and the capital of the French Republic is the capital of the French ... |
-| Sampling    | `python sample.py --init_from=gpt2 --start="The capital of France is" --num_samples=3 --max_new_tokens=20 --temperature=1.0` | The capital of France is a capital city.<br>The capital of France is at the centre of much of the anti-immigration debate. ... |
-| Beam Search | `python sample.py --init_from=gpt2 --start="The capital of France is" --num_samples=1 --max_new_tokens=20 --temperature=1.0 --beam_search=True --beam_width=5` | The capital of France is the capital of France. It is the capital of France. It is the capital of France. It ... |
+| Greedy      | `python sample.py --init_from=gpt2 --start="The capital of France is" --num_samples=1 --max_new_tokens=20 --temperature=0.0001` | The capital of France is the capital of the French Republic, and the capital of the French Republic is the capital of the French |
+| Sampling    | `python sample.py --init_from=gpt2 --start="The capital of France is" --num_samples=3 --max_new_tokens=20 --temperature=1.0` | The capital of France is a capital city.<br>The capital of France is at the centre of much of the anti-immigration debate. |
+| Beam Search | `python sample.py --init_from=gpt2 --start="The capital of France is" --num_samples=1 --max_new_tokens=20 --temperature=1.0 --beam_search=True --beam_width=5` | The capital of France is the capital of France. It is the capital of France. It is the capital of France. It |
 
 ------
 
