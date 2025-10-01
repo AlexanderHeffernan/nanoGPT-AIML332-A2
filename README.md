@@ -12,6 +12,20 @@ pip install torch tiktoken matplotlib
 
 If you are on a Mac with Apple Silicon, you may want to use the `mps` device for faster training/inference. Else, use `cuda` if you have an NVIDIA GPU, or `cpu` otherwise.
 
+### Download and Setup the Fine-Tuned Model Checkpoint
+
+The fine-tuned cricket model checkpoint (`ckpt.pt`) is too large for GitHub version control. Please download it from the [GitHub Release page](https://github.com/AlexanderHeffernan/nanoGPT-AIML332-A2/releases/tag/1.0) and place it in the `out-cricketrules` directory.
+
+1. Got to: [GitHub Release](https://github.com/AlexanderHeffernan/nanoGPT-AIML332-A2/releases/tag/1.0)
+2. Download `ckpt.pt` from the Assets section.
+3. Move `ckpt.pt` to the `out-cricketrules` directory:
+```bash
+mv ~/Downloads/ckpt.pt out-cricketrules/
+```
+Or manually drag and drop it into the `out-cricketrules` folder.
+
+Now you can run all commands in this README as described.
+
 ## How to Run the Programs
 
 ### 1. Visualise Token Probabilities (`sample.py --show_probs`) (1.1)
