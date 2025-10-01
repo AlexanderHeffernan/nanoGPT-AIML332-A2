@@ -1,3 +1,11 @@
+## Submission and Access Instructions
+
+All soure code for this assignment is available in my GitHub repository: [https://github.com/AlexanderHeffernan/nanoGPT-AIML332-A2](https://github.com/AlexanderHeffernan/nanoGPT-AIML332-A2)
+
+The fine-tuned cricket model checkpoint (`ckpt.pt`) is too large for direct inclusion in the submission system or the repository, but it is provided as a downloadable asset in the Releases section of the repository: [Download ckpt.pt from GitHub Releases](https://github.com/AlexanderHeffernan/nanoGPT-AIML332-A2/releases/tag/1.0)
+
+Please follow the setup instructions in the [README.md](README.md) to install dependencies and place the checkpoint file in the correct directory (`out-cricketrules`). This will allow you to run all code and reproduce the results described in this report.
+
 ## 1.1 Visualising Token Probabilities
 
 ### (a) Code Description and Sample Output
