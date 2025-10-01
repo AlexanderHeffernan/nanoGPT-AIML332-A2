@@ -7,7 +7,7 @@ This repository contains my submission for AIML332 Assignment 2. I have forked a
 Before running any code, install the required Python packages:
 
 ```bash
-pip install torch tiktoken matplotlib datasets
+pip install torch tiktoken matplotlib
 ```
 
 If you are on a Mac with Apple Silicon, you may want to use the `mps` device for faster training/inference. Else, use `cuda` if you have an NVIDIA GPU, or `cpu` otherwise.
